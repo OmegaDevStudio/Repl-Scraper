@@ -6,7 +6,7 @@ A discord token scraper, designed to scrape forks from replit.com
 
 Please add an empty folder named data to the project directory.
 
-Requires Rust installed with Cargo. You can follow this [guide](https://doc.rust-lang.org/cargo/getting-started/installation.html) here. After that you may run `cargo run --release` and should start running.
+Requires Rust installed with Cargo. You can follow this [guide](https://doc.rust-lang.org/cargo/getting-started/installation.html) here. Then please set rust to the nightly branch using `rustup default nightly`. After that you may run `cargo run --release` and should start running.
 
 If you are too lazy you can contact me on discord and I can send you the executable.
 
