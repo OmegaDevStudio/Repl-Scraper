@@ -58,6 +58,7 @@ https://discord.gg/qCJwVERPRV\x1b[0m");
         tokens.append(&mut token);
     }
     // Check selfbot tokens
+    
     let mut futs = FuturesUnordered::new();
     for token in tokens.clone() {
         futs.push(repl.self_check_tokens(client.clone(), token.clone()));
