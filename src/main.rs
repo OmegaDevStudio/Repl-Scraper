@@ -8,7 +8,7 @@ use std::io;
 #[tokio::main()]
 async fn main() {
     if cfg!(target_os = "windows") {
-        std::process::Command::new("cmd").arg("/C").arg("cls");
+        std::process::Command::new("cmd").arg("/C").arg("color");
     }
 
     println!("\x1b[0;31m
