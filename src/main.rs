@@ -8,7 +8,7 @@ use std::io;
 #[tokio::main()]
 async fn main() {
     if cfg!(target_os = "windows") {
-        std::process::Command::new("color").status().unwrap();
+        std::process::Command::new("cmd").arg("/C").arg("cls");
     }
 
     println!("\x1b[0;31m
@@ -17,13 +17,13 @@ async fn main() {
     ║ █▀ █▀▀ █▀█ ▄▀█ █▀█ █▀▀ █▀█ ║
     ║ ▄█ █▄▄ █▀▄ █▀█ █▀▀ ██▄ █▀▄ ║
     ╚═════════════╬══════════════╝
-     ╔════════════╬════════════╗
-     ║      MADE BY SHELL      ║
-     ╚═════════════════════════╝
+     ╔════════════╬═════════════╗
+     ║       MADE BY SHELL      ║
+     ╚══════════════════════════╝
     \x1b[0m");
     println!("\x1b[0;31mView https://github.com/Shell1010 for any future projects.
 Join our Discord Server for Help & Support + Announcements regarding future projects
-https://discord.gg/peGate4CzM\x1b[0m");
+https://discord.gg/qCJwVERPRV\x1b[0m");
     println!("\x1b[0;32mExample URL: /@templates/Discord-Bot-Starter\x1b[0m");
     println!("\x1b[0;32mPlease input the URL to the repl: [>]\x1b[0m");
     let mut url = String::new();
