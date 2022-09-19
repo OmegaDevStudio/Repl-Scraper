@@ -310,64 +310,78 @@ impl Replit {
     }
 
     pub async fn self_check_tokens(&self, client: Arc<Client>, token: String) {
-        let mut file_writer = OpenOptions::new()
+        let file_writer = OpenOptions::new()
             .create(true)
             .append(true)
             .open("valid.txt")
-            .await.unwrap();
+            .await;
 
-        loop {
-            let resp = client.get("https://discord.com/api/v9/users/@me/library")
-                .header("authorization", token.clone())
-                .send().await;
-            match resp {
-                Ok(resp) => {
-                    if resp.status().is_success() {
-                        file_writer.write_all(format!("{}\n", token.clone()).as_bytes()).await.expect("Failed to write file");
-                        println!("\x1b[0;32mUser Token: {} is valid!\x1b[0m", &token);
-                        break
-                    } else if resp.status().as_u16() == 429 {
-                        let j = resp.json::<Retry>().await.unwrap();
-                        println!("\x1b[0;31mRatelimited... Please wait {} seconds\x1b[0m", j.retry_after);
-                        sleep(Duration::from_secs_f32(j.retry_after)).await;
-                    } else if resp.status().is_client_error() {
-                        println!("\x1b[0;31mUser Token: {} is invalid!\x1b[0m", &token);
-                        break
+        match file_writer {
+            Ok(file) => {
+                let mut file = file;
+                loop {
+                    let resp = client.get("https://discord.com/api/v9/users/@me/library")
+                        .header("authorization", token.clone())
+                        .send().await;
+                    match resp {
+                        Ok(resp) => {
+                            if resp.status().is_success() {
+                                file.write_all(format!("{}\n", token.clone()).as_bytes()).await.expect("Failed to write file");
+                                println!("\x1b[0;32mUser Token: {} is valid!\x1b[0m", &token);
+                                break
+                            } else if resp.status().as_u16() == 429 {
+                                let j = resp.json::<Retry>().await.unwrap();
+                                println!("\x1b[0;31mRatelimited... Please wait {} seconds\x1b[0m", j.retry_after);
+                                sleep(Duration::from_secs_f32(j.retry_after)).await;
+                            } else if resp.status().is_client_error() {
+                                println!("\x1b[0;31mUser Token: {} is invalid!\x1b[0m", &token);
+                                break
+                            }
+                        },
+                        Err(e) => {println!("\x1b[0;31mError has occurred\nError: {e}\x1b[0m"); break},
                     }
-                },
-                Err(e) => {println!("\x1b[0;31mError has occurred\nError: {e}\x1b[0m"); break},
-            }
+                }
+            },
+            Err(e) => println!("\x1b[0;31mError: {}\x1b[0m", e)
         }
+
+
     }
 
     pub async fn bot_check_tokens(&self, client: Arc<Client>, token: String) {
-        let mut file_writer = OpenOptions::new()
+        let file_writer = OpenOptions::new()
             .create(true)
             .append(true)
             .open("valid.txt")
-            .await.unwrap();
+            .await;
 
-        loop {
-            let resp = client.get("https://canary.discordapp.com/api/v9/users/@me")
-                .header("authorization", token.clone())
-                .send().await;
-            match resp {
-                Ok(resp) => {
-                    if resp.status().is_success() {
-                        file_writer.write_all(format!("{}\n", token.clone()).as_bytes()).await.expect("Failed to write file");
-                        println!("\x1b[0;32mBot Token: {} is valid!\x1b[0m", &token);
-                        break
-                    } else if resp.status().as_u16() == 429 {
-                        let j = resp.json::<Retry>().await.unwrap();
-                        println!("\x1b[0;31mRatelimited... Please wait {} seconds\x1b[0m", j.retry_after);
-                        sleep(Duration::from_secs_f32(j.retry_after)).await;
-                    } else if resp.status().is_client_error() {
-                        println!("\x1b[0;31mBot Token: {} is invalid!\x1b[0m", &token);
-                        break
+        match file_writer {
+            Ok(file) => {
+                let mut file = file;
+                loop {
+                    let resp = client.get("https://canary.discordapp.com/api/v9/users/@me")
+                        .header("authorization", format!("Bot {}",token.clone()))
+                        .send().await;
+                    match resp {
+                        Ok(resp) => {
+                            if resp.status().is_success() {
+                                file.write_all(format!("{}\n", token.clone()).as_bytes()).await.expect("Failed to write file");
+                                println!("\x1b[0;32mBot Token: {} is valid!\x1b[0m", &token);
+                                break
+                            } else if resp.status().as_u16() == 429 {
+                                let j = resp.json::<Retry>().await.unwrap();
+                                println!("\x1b[0;31mRatelimited... Please wait {} seconds\x1b[0m", j.retry_after);
+                                sleep(Duration::from_secs_f32(j.retry_after)).await;
+                            } else if resp.status().is_client_error() {
+                                println!("\x1b[0;31mBot Token: {} is invalid!\x1b[0m", &token);
+                                break
+                            }
+                        },
+                        Err(e) => {println!("\x1b[0;31mError has occurred\nError: {e}\x1b[0m"); break},
                     }
-                },
-                Err(e) => {println!("\x1b[0;31mError has occurred\nError: {e}\x1b[0m"); break},
-            }
+                }
+            },
+            Err(e) => println!("\x1b[0;31mError: {}\x1b[0m", e)
         }
     }
 }

@@ -12,5 +12,7 @@ If you are too lazy you can contact me on discord and I can send you the executa
 
 Once your script is running, you paste the repl in which you want to scrape the forks of. For example /@templates/Discord-Bot-Starter. Hit enter, and it will begin. This will also check the tokens for you and place them in `valid.txt`.
 
+You may need to increase your File Descriptor limit for your PC if you are doing more heavy duty scraping ~ 1500+. If not you may run into errors when attempting to extract.
+
 ## Help & Support
 - My [discord server](https://discord.gg/qCJwVERPRV)
