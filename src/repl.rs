@@ -259,6 +259,7 @@ impl Replit {
     }
 
     pub async fn search_extract(&self, src: Vec<u8>) -> Vec<String> {
+        let other_token_regex = Regex::new(r#"[A-z|0-9]{24}\.[A-z|0-9|\W]{6}\.[A-z|0-9|\W]{38}"#).unwrap();
         let token_regex = Regex::new(r#"[A-z|0-9]{24}\.[A-z|0-9|\W]{6}\.[A-z|0-9|\W]{27}"#).unwrap();
         extract(Cursor::new(src),  &PathBuf::from("./data"), false).unwrap();
         let walker = WalkDir::new("./data").into_iter();
@@ -281,9 +282,11 @@ impl Replit {
                         for token in token_regex.find_iter(&file) {
                             tokens.push(token.as_str().to_string());
                             file_writer.write_all(format!("{}\n", token.as_str()).as_bytes()).await.unwrap();
-
                         }
-
+                        for token in other_token_regex.find_iter(&file) {
+                            tokens.push(token.as_str().to_string());
+                            file_writer.write_all(format!("{}\n", token.as_str()).as_bytes()).await.unwrap();
+                        }
                     };
                 }
             },
