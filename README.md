@@ -14,5 +14,7 @@ Once your script is running, you paste the repl in which you want to scrape the 
 
 You may need to increase your File Descriptor limit for your PC if you are doing more heavy duty scraping ~ 1500+. If not you may run into errors when attempting to extract.
 
+**This tool generally requires a decent internet connection.**
+
 ## Help & Support
 - My [discord server](https://discord.gg/qCJwVERPRV)
