@@ -1,6 +1,6 @@
 # Scraper
 
-A discord token scraper, designed to scrape forks from replit.com
+A discord token scraper, designed to scrape forks from replit.com. This script uses the Graphql api on replit to essentially pull forks.
 
 ## Setup
 
