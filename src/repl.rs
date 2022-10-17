@@ -122,10 +122,8 @@ impl Replit {
         .header("x-requested-with", "XMLHttpRequest")
         .json(&json)
         .send().await.unwrap();
-
+        
         resp.json::<Startid>().await.unwrap().start.data.repl.id
-
-
     }
 
 
@@ -149,6 +147,7 @@ impl Replit {
         .header("x-requested-with", "XMLHttpRequest")
         .json(&json)
         .send().await.unwrap();
+
         let repl = resp.json::<StartFork>().await.unwrap().start.data.repl;
         let count = repl.publicForkCount;
         println!("\x1b[0;32mFound {} forks...\x1b[0m", count);
