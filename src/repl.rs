@@ -121,9 +121,13 @@ impl Replit {
         .header("connection", "keep-alive")
         .header("x-requested-with", "XMLHttpRequest")
         .json(&json)
-        .send().await.unwrap();
-        
-        resp.json::<Startid>().await.unwrap().start.data.repl.id
+        .send().await;
+        match resp {
+            Ok(resp) => resp.json::<Startid>().await.unwrap().start.data.repl.id,
+            Err(e) => panic!("Could not get Repl ID: {}", e)
+        }
+
+
     }
 
 

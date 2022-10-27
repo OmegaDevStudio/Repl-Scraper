@@ -14,3 +14,7 @@ serde_json = "1.0.83"
 tokio = { version = "1.20.1", features = ["full"] }
 walkdir = "2.3.2"
 zip-extract = "0.1.1"
+
+[profile.release]
+opt-level = 3
+lto = true

