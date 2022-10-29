@@ -1,3 +1,4 @@
+cargo-features = ["profile-rustflags"]
 [package]
 name = "repl-scraper"
 version = "0.1.0"
@@ -18,3 +19,4 @@ zip-extract = "0.1.1"
 [profile.release]
 opt-level = 3
 lto = true
+# rustflags = ["-C target-cpu=native"]

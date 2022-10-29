@@ -93,7 +93,7 @@ fn is_hidden(entry: &DirEntry) -> bool {
 
     entry.file_name()
         .to_str()
-        .map(|s| s.starts_with("."))
+        .map(|s| s.starts_with('.'))
         .unwrap_or(false)
 
 }
@@ -124,7 +124,7 @@ impl Replit {
         .send().await;
         match resp {
             Ok(resp) => resp.json::<Startid>().await.unwrap().start.data.repl.id,
-            Err(e) => panic!("Could not get Repl ID: {}", e)
+            Err(e) => panic!("Could not get Repl ID: {e}")
         }
 
 
@@ -154,7 +154,7 @@ impl Replit {
 
         let repl = resp.json::<StartFork>().await.unwrap().start.data.repl;
         let count = repl.publicForkCount;
-        println!("\x1b[0;32mFound {} forks...\x1b[0m", count);
+        println!("\x1b[0;32mFound {count} forks...\x1b[0m");
         let forks = repl.publicForks.items;
         let mut urls: Vec<String> = vec!();
         let mut ids: Vec<String> = vec!();
@@ -190,7 +190,7 @@ impl Replit {
 
                 println!("\x1b[0;32m{} forks loaded...\x1b[0m", urls.len());
                 let forks = repl.publicForks.items;
-                if forks.len() > 0 {
+                if forks.is_empty() {
                     for fork in forks {
                         urls.push(fork.url);
                         ids.push(fork.id);
@@ -210,7 +210,7 @@ impl Replit {
 
 
     pub async fn get_zip(self, client: Arc<Client>, url: String, count: u32) -> Option<Vec<u8>> {
-        let url = format!("https://replit.com{}.zip", url);
+        let url = format!("https://replit.com{url}.zip");
         println!("\x1b[0;32mStarted downloading fork {}...\x1b[0m", &count);
         let src: Vec<u8>;
         loop {
@@ -239,7 +239,7 @@ impl Replit {
                                 println!("\x1b[0;32mFinished downloading fork {}...\x1b[0m", &count);
                                 return Some(src)
                             } Err(e) => {
-                                println!("\x1b[0;31mError: {}\x1b[0m", e);
+                                println!("\x1b[0;31mError: {e}\x1b[0m");
                                 return None
                             }
                         }
@@ -348,7 +348,7 @@ impl Replit {
                     }
                 }
             },
-            Err(e) => println!("\x1b[0;31mError: {}\x1b[0m", e)
+            Err(e) => println!("\x1b[0;31mError: {e}\x1b[0m")
         }
 
 
@@ -387,7 +387,7 @@ impl Replit {
                     }
                 }
             },
-            Err(e) => println!("\x1b[0;31mError: {}\x1b[0m", e)
+            Err(e) => println!("\x1b[0;31mError: {e}\x1b[0m")
         }
     }
 }
