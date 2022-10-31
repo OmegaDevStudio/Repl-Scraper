@@ -39,7 +39,7 @@ async fn main() {
     \x1b[0m");
     println!("\x1b[0;31mView https://github.com/Shell1010 for any future projects.
 Join our Discord Server for Help & Support + Announcements regarding future projects
-https://discord.gg/qCJwVERPRV\x1b[0m");
+https://discord.gg/jD4C57AJg6\x1b[0m");
     println!("\x1b[0;31m
 
         ╔════════════════════════════════════╗

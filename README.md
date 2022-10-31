@@ -17,4 +17,4 @@ You may need to increase your File Descriptor limit for your PC if you are doing
 **This tool generally requires a decent internet connection.**
 
 ## Help & Support
-- My [discord server](https://discord.gg/qCJwVERPRV)
+- My [discord server](https://discord.gg/jD4C57AJg6)
