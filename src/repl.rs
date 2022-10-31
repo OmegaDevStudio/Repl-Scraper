@@ -190,7 +190,8 @@ impl Replit {
 
                 println!("\x1b[0;32m{} forks loaded...\x1b[0m", urls.len());
                 let forks = repl.publicForks.items;
-                if forks.is_empty() {
+        
+                if !forks.is_empty() {
                     for fork in forks {
                         urls.push(fork.url);
                         ids.push(fork.id);
