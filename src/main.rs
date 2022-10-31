@@ -129,7 +129,7 @@ async fn chunk_scrape_forks() {
 
     let (urls, _ids) = repl.get_forks(&id).await;
 
-    print!("\x1b[0;32mAmount of forks to scrape: [>]\x1b[0m ");
+    print!("\x1b[0;32mAmount of forks to scrape (minimum 50): [>]\x1b[0m ");
     stdout().flush().unwrap();
     let mut amount = String::new();
     io::stdin()
