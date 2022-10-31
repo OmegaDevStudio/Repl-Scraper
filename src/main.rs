@@ -129,13 +129,17 @@ async fn chunk_scrape_forks() {
 
     let (urls, _ids) = repl.get_forks(&id).await;
 
-    print!("\x1b[0;32mAmount of forks to scrape (minimum 50): [>]\x1b[0m ");
+    print!("\x1b[0;32mAmount of forks to scrape: [>]\x1b[0m ");
     stdout().flush().unwrap();
     let mut amount = String::new();
     io::stdin()
     .read_line(&mut amount)
     .expect("Failed to read line");
-    let amount = amount.trim().parse::<u32>().unwrap();
+    let mut amount = amount.trim().parse::<u32>().expect("Did not type an integer");
+
+    if amount < 50  {
+        amount = 50;
+    }
     let client = Arc::new(Client::new());
     let mut futs = FuturesUnordered::new();
     let mut count = 1;
