@@ -29,14 +29,14 @@ async fn main() {
 
     println!("
 
-    \x1b[91;40m╔════════════════════════════╗\x1b[0m
-    \x1b[91;40m║ █▀ █▀▀ █▀█ ▄▀█ █▀█ █▀▀ █▀█ ║\x1b[0m
-    \x1b[91;40m║ ▄█ █▄▄ █▀▄ █▀█ █▀▀ ██▄ █▀▄ ║\x1b[0m
-    \x1b[91;40m╚════════════════════════════╝\x1b[0m
+        \x1b[91;40m╔════════════════════════════╗\x1b[0m
+        \x1b[91;40m║ █▀ █▀▀ █▀█ ▄▀█ █▀█ █▀▀ █▀█ ║\x1b[0m
+        \x1b[91;40m║ ▄█ █▄▄ █▀▄ █▀█ █▀▀ ██▄ █▀▄ ║\x1b[0m
+        \x1b[91;40m╚════════════════════════════╝\x1b[0m
 
-     \x1b[91;40m╔══════════════════════════╗\x1b[0m
-     \x1b[91;40m║       MADE BY SHELL      ║\x1b[0m
-     \x1b[91;40m╚══════════════════════════╝\x1b[0m
+         \x1b[91;40m╔══════════════════════════╗\x1b[0m
+         \x1b[91;40m║       MADE BY SHELL      ║\x1b[0m
+         \x1b[91;40m╚══════════════════════════╝\x1b[0m
     \x1b[0m");
     println!("\x1b[0;91mView https://github.com/Shell1010 for any future projects.
 Join our Discord Server for Help & Support + Announcements regarding future projects
@@ -194,7 +194,7 @@ async fn chunk_scrape_forks() {
     file_writer.write_all("Self:\n".as_bytes()).await.unwrap();
     let mut futs = FuturesUnordered::new();
     while let Some(token) = tokens.next() {
-        futs.push(repl.self_check_tokens(client.clone(), token.to_string().clone()));
+        futs.push(repl.self_check_tokens(client.clone(), token.clone()));
         chunk_count += 1;
         if tokens.peek().is_none() || chunk_count >= 100 {
             while futs.next().await.is_some() {};

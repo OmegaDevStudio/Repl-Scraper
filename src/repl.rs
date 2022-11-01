@@ -242,7 +242,7 @@ impl Replit {
                             } Err(e) => {
                                 println!("\x1b[0;91mError: {e}\x1b[0m");
                                 return None
-                            } 
+                            }
                         }
                     } else if resp.status().as_str() == "429" {
                         match resp.headers().get("retry-after") {
@@ -334,7 +334,7 @@ impl Replit {
                         Ok(resp) => {
                             if resp.status().is_success() {
                                 file.write_all(format!("{}\n", token.clone()).as_bytes()).await.expect("Failed to write file");
-                                println!("\x1b[0;92mUser Token: {} is valid!\x1b[0m", &token);
+                                println!("\x1b[44;93mUser Token: {} is valid!\x1b[0m", &token);
                                 break
                             } else if resp.status().as_u16() == 429 {
                                 let j = resp.json::<Retry>().await.unwrap();
@@ -373,7 +373,7 @@ impl Replit {
                         Ok(resp) => {
                             if resp.status().is_success() {
                                 file.write_all(format!("{}\n", token.clone()).as_bytes()).await.expect("Failed to write file");
-                                println!("\x1b[0;92mBot Token: {} is valid!\x1b[0m", &token);
+                                println!("\x1b[44;93mBot Token: {} is valid!\x1b[0m", &token);
                                 break
                             } else if resp.status().as_u16() == 429 {
                                 let j = resp.json::<Retry>().await.unwrap();
