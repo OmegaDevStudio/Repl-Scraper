@@ -242,7 +242,7 @@ impl Replit {
                             } Err(e) => {
                                 println!("\x1b[0;91mError: {e}\x1b[0m");
                                 return None
-                            }
+                            } 
                         }
                     } else if resp.status().as_str() == "429" {
                         match resp.headers().get("retry-after") {
