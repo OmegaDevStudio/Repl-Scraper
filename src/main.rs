@@ -27,29 +27,35 @@ async fn main() {
         std::process::Command::new("cmd").arg("/C").arg("color");
     }
 
-    println!("\x1b[0;31m
+    println!("
 
-           ╔═════════════╬══════════════╗
-           ║ █▀ █▀▀ █▀█ ▄▀█ █▀█ █▀▀ █▀█ ║
-           ║ ▄█ █▄▄ █▀▄ █▀█ █▀▀ ██▄ █▀▄ ║
-           ╚═════════════╬══════════════╝
-            ╔════════════╬═════════════╗
-            ║       MADE BY SHELL      ║
-            ╚══════════════════════════╝
+    \x1b[91;40m╔════════════════════════════╗\x1b[0m
+    \x1b[91;40m║ █▀ █▀▀ █▀█ ▄▀█ █▀█ █▀▀ █▀█ ║\x1b[0m
+    \x1b[91;40m║ ▄█ █▄▄ █▀▄ █▀█ █▀▀ ██▄ █▀▄ ║\x1b[0m
+    \x1b[91;40m╚════════════════════════════╝\x1b[0m
+
+     \x1b[91;40m╔══════════════════════════╗\x1b[0m
+     \x1b[91;40m║       MADE BY SHELL      ║\x1b[0m
+     \x1b[91;40m╚══════════════════════════╝\x1b[0m
     \x1b[0m");
-    println!("\x1b[0;31mView https://github.com/Shell1010 for any future projects.
+    println!("\x1b[0;91mView https://github.com/Shell1010 for any future projects.
 Join our Discord Server for Help & Support + Announcements regarding future projects
 https://discord.gg/jD4C57AJg6\x1b[0m");
-    println!("\x1b[0;31m
 
-        ╔════════════════════════════════════╗
-        ║  A. Scrape forks from inputted URL ║
-        ║  B. Check the tokens in tokens.txt ║
-        ╚════════════════════════════════════╝
-
-    \x1b[0m");
     loop {
-        print!("\x1b[0;32mPlease enter an Option: [>]\x1b[0m ");
+        println!("\x1b[0;91m
+        \x1b[91;40m╔════════════════════════════╗\x1b[0m
+        \x1b[91;40m║ █▀ █▀▀ █▀█ ▄▀█ █▀█ █▀▀ █▀█ ║\x1b[0m
+        \x1b[91;40m║ ▄█ █▄▄ █▀▄ █▀█ █▀▀ ██▄ █▀▄ ║\x1b[0m
+        \x1b[91;40m╚════════════════════════════╝\x1b[0m
+
+    \x1b[91;40m╔════════════════════════════════════╗\x1b[0m
+    \x1b[91;40m║  A. Scrape forks from inputted URL ║\x1b[0m
+    \x1b[91;40m║  B. Check the tokens in tokens.txt ║\x1b[0m
+    \x1b[91;40m╚════════════════════════════════════╝\x1b[0m
+
+        \x1b[0m");
+        print!("\x1b[0;92mPlease enter an Option: [>]\x1b[0m ");
         stdout().flush().unwrap();
         let mut option = String::new();
         io::stdin()
@@ -61,7 +67,8 @@ https://discord.gg/jD4C57AJg6\x1b[0m");
         } else if option.trim() == "B" {
             check_tokens().await;
         } else {
-            println!("[0;31mInvalid Option[0m");
+
+            println!("\x1b[0;91mInvalid Option\x1b[0m ");
         }
     }
 }
@@ -175,7 +182,7 @@ async fn chunk_scrape_forks() {
         tokens.append(&mut token);
     }
     let mut tokens = tokens.iter().peekable();
-    let tok = tokens.clone();
+    let mut tok = tokens.clone();
     // Check Selfbot tokens
     let mut chunk_count = 0;
 
@@ -196,17 +203,10 @@ async fn chunk_scrape_forks() {
         }
     }
 
-
-    let mut file_writer = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open("valid.txt")
-        .await.unwrap();
+    chunk_count = 0;
     file_writer.write_all("Bot:\n".as_bytes()).await.unwrap();
     let mut futs = FuturesUnordered::new();
-
-
-    for token in tok {
+    while let Some(token) = tok.next() {
         futs.push(repl.bot_check_tokens(client.clone(), token.clone()));
         chunk_count += 1;
         if tokens.peek().is_none() || chunk_count >= 100 {

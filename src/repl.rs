@@ -154,7 +154,7 @@ impl Replit {
 
         let repl = resp.json::<StartFork>().await.unwrap().start.data.repl;
         let count = repl.publicForkCount;
-        println!("\x1b[0;32mFound {count} forks...\x1b[0m");
+        println!("\x1b[0;92mFound {count} forks...\x1b[0m");
         let forks = repl.publicForks.items;
         let mut urls: Vec<String> = vec!();
         let mut ids: Vec<String> = vec!();
@@ -188,9 +188,9 @@ impl Replit {
                 .send().await.unwrap();
                 let repl = resp.json::<StartFork>().await.unwrap().start.data.repl;
 
-                println!("\x1b[0;32m{} forks loaded...\x1b[0m", urls.len());
+                println!("\x1b[0;92m{} forks loaded...\x1b[0m", urls.len());
                 let forks = repl.publicForks.items;
-        
+
                 if !forks.is_empty() {
                     for fork in forks {
                         urls.push(fork.url);
@@ -212,7 +212,7 @@ impl Replit {
 
     pub async fn get_zip(self, client: Arc<Client>, url: String, count: u32) -> Option<Vec<u8>> {
         let url = format!("https://replit.com{url}.zip");
-        println!("\x1b[0;32mStarted downloading fork {}...\x1b[0m", &count);
+        println!("\x1b[0;93mStarted downloading fork {}...\x1b[0m", &count);
         let src: Vec<u8>;
         loop {
             let resp = client.get(&url)
@@ -237,23 +237,23 @@ impl Replit {
                         match resp.bytes().await {
                             Ok(bytes) => {
                                 src = bytes.to_vec();
-                                println!("\x1b[0;32mFinished downloading fork {}...\x1b[0m", &count);
+                                println!("\x1b[0;92mFinished downloading fork {}...\x1b[0m", &count);
                                 return Some(src)
                             } Err(e) => {
-                                println!("\x1b[0;31mError: {e}\x1b[0m");
+                                println!("\x1b[0;91mError: {e}\x1b[0m");
                                 return None
                             }
                         }
                     } else if resp.status().as_str() == "429" {
                         match resp.headers().get("retry-after") {
                             Some(retry) => {
-                                println!("\x1b[0;31mRatelimited... Waiting for {} seconds\x1b[0m", retry.to_str().unwrap());
+                                println!("\x1b[0;91mRatelimited... Waiting for {} seconds\x1b[0m", retry.to_str().unwrap());
                                 sleep(Duration::from_secs(retry.to_str().unwrap().to_string().parse::<u64>().unwrap())).await;
                             },
                             None => return None,
                         }
                     } else {
-                        println!("\x1b[0;31mFailed to retrieve zip. Error: {}\x1b[0m", resp.status().as_str());
+                        println!("\x1b[0;91mFailed to retrieve zip. Error: {}\x1b[0m", resp.status().as_str());
                         return None
                     }
                 },
@@ -295,7 +295,7 @@ impl Replit {
                 }
             },
             Err(_) => {
-                println!("\x1b[0;31mPath: {path:?} is not a file\x1b[0m");
+                println!("\x1b[0;91mPath: {path:?} is not a file\x1b[0m");
                 continue
             },
         }
@@ -303,16 +303,16 @@ impl Replit {
         match fs::remove_dir_all("./data").await {
             Ok(_) => {},
             Err(e) => {
-                println!("\x1b[0;31mError: {e:?}\x1b[0m");
+                println!("\x1b[0;91mError: {e:?}\x1b[0m");
             }
         };
         match fs::create_dir("./data").await {
             Ok(_) => {},
             Err(e) => {
-                println!("\x1b[0;32mError: {e:?}\x1b[0m");
+                println!("\x1b[0;91mError: {e:?}\x1b[0m");
             }
         }
-        println!("\x1b[0;32mFinished searching extract...\x1b[0m");
+        println!("\x1b[0;92mFinished searching extract...\x1b[0m");
         tokens
     }
 
@@ -334,22 +334,22 @@ impl Replit {
                         Ok(resp) => {
                             if resp.status().is_success() {
                                 file.write_all(format!("{}\n", token.clone()).as_bytes()).await.expect("Failed to write file");
-                                println!("\x1b[0;32mUser Token: {} is valid!\x1b[0m", &token);
+                                println!("\x1b[0;92mUser Token: {} is valid!\x1b[0m", &token);
                                 break
                             } else if resp.status().as_u16() == 429 {
                                 let j = resp.json::<Retry>().await.unwrap();
-                                println!("\x1b[0;31mRatelimited... Please wait {} seconds\x1b[0m", j.retry_after);
+                                println!("\x1b[0;91mRatelimited... Please wait {} seconds\x1b[0m", j.retry_after);
                                 sleep(Duration::from_secs_f32(j.retry_after)).await;
                             } else if resp.status().is_client_error() {
-                                println!("\x1b[0;31mUser Token: {} is invalid!\x1b[0m", &token);
+                                println!("\x1b[0;91mUser Token: {} is invalid!\x1b[0m", &token);
                                 break
                             }
                         },
-                        Err(e) => {println!("\x1b[0;31mError has occurred\nError: {e}\x1b[0m"); break},
+                        Err(e) => {println!("\x1b[0;91mError has occurred\nError: {e}\x1b[0m"); break},
                     }
                 }
             },
-            Err(e) => println!("\x1b[0;31mError: {e}\x1b[0m")
+            Err(e) => println!("\x1b[0;91mError: {e}\x1b[0m")
         }
 
 
@@ -373,22 +373,22 @@ impl Replit {
                         Ok(resp) => {
                             if resp.status().is_success() {
                                 file.write_all(format!("{}\n", token.clone()).as_bytes()).await.expect("Failed to write file");
-                                println!("\x1b[0;32mBot Token: {} is valid!\x1b[0m", &token);
+                                println!("\x1b[0;92mBot Token: {} is valid!\x1b[0m", &token);
                                 break
                             } else if resp.status().as_u16() == 429 {
                                 let j = resp.json::<Retry>().await.unwrap();
-                                println!("\x1b[0;31mRatelimited... Please wait {} seconds\x1b[0m", j.retry_after);
+                                println!("\x1b[0;91mRatelimited... Please wait {} seconds\x1b[0m", j.retry_after);
                                 sleep(Duration::from_secs_f32(j.retry_after)).await;
                             } else if resp.status().is_client_error() {
-                                println!("\x1b[0;31mBot Token: {} is invalid!\x1b[0m", &token);
+                                println!("\x1b[0;91mBot Token: {} is invalid!\x1b[0m", &token);
                                 break
                             }
                         },
-                        Err(e) => {println!("\x1b[0;31mError has occurred\nError: {e}\x1b[0m"); break},
+                        Err(e) => {println!("\x1b[0;91mError has occurred\nError: {e}\x1b[0m"); break},
                     }
                 }
             },
-            Err(e) => println!("\x1b[0;31mError: {e}\x1b[0m")
+            Err(e) => println!("\x1b[0;91mError: {e}\x1b[0m")
         }
     }
 }
