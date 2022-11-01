@@ -67,7 +67,6 @@ https://discord.gg/jD4C57AJg6\x1b[0m");
         } else if option.trim() == "B" {
             check_tokens().await;
         } else {
-
             println!("\x1b[0;91mInvalid Option\x1b[0m ");
         }
     }
