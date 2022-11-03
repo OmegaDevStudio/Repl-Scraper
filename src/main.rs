@@ -208,7 +208,7 @@ async fn chunk_scrape_forks() {
     while let Some(token) = tok.next() {
         futs.push(repl.bot_check_tokens(client.clone(), token.clone()));
         chunk_count += 1;
-        if tokens.peek().is_none() || chunk_count >= 100 {
+        if tok.peek().is_none() || chunk_count >= 100 {
             while futs.next().await.is_some() {};
             chunk_count = 0;
         }

@@ -119,6 +119,7 @@ impl Replit {
         .header("user-agent", "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0")
         .header("origin", "https://replit.com")
         .header("connection", "keep-alive")
+        .header("cookie", "_anon_id=abf0f575-1c1c-4de7-bc67-7803533ea9b5; connect.sid=s%3AMX1T-6foGoJBZ-vD4mai6zi3B5PP-__N.%2BikcOEv6Hxvjef1mdu3cBMV0SHttLuzNwL0Tf6rEDi8; replit:authed=1; replit_authed=1; gating_id=0c813224-211d-4b4b-a0c5-552f7d6e41c4; ajs_anonymous_id=0c813224-211d-4b4b-a0c5-552f7d6e41c4; gating_id=0c813224-211d-4b4b-a0c5-552f7d6e41c4; ld_uid=4425394; __stripe_mid=5e9068e7-c2cc-4cdf-92e2-2e6799b7973ef5d0a3; cf_clearance=vRhSia.1nw.phCZ.l3IyiXHIanb4D1vhUro0g38LMdg-1664479523-0-150; amplitudeSessionId=1667485526; sidebarClosed=true; _dd_s=logs=1&id=92c31f11-b9fb-42b9-8d23-7420b2ce2481&created=1667485526231&expire=1667486587104&rum=0")
         .header("x-requested-with", "XMLHttpRequest")
         .json(&json)
         .send().await;
@@ -263,7 +264,7 @@ impl Replit {
     }
 
     pub async fn search_extract(&self, src: Vec<u8>) -> Vec<String> {
-        let other_token_regex = Regex::new(r#"[A-z|0-9]{24}\.[A-z|0-9|\W]{6}\.[A-z|0-9|\W]{38}"#).unwrap();
+        let other_token_regex = Regex::new(r#"[A-z|0-9]{24,26}\.[A-z|0-9|\W]{6}\.[A-z|0-9|\W]{38}"#).unwrap();
         let token_regex = Regex::new(r#"[A-z|0-9]{24}\.[A-z|0-9|\W]{6}\.[A-z|0-9|\W]{27}"#).unwrap();
         extract(Cursor::new(src),  &PathBuf::from("./data"), false).unwrap();
         let walker = WalkDir::new("./data").into_iter();
