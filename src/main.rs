@@ -143,9 +143,9 @@ async fn chunk_scrape_forks() {
     .expect("Failed to read line");
     let mut amount = amount.trim().parse::<u32>().expect("Did not type an integer");
 
-    if amount < 50  {
-        amount = 50;
-    }
+    // if amount < 50  {
+    //     amount = 50;
+    // }
     let client = Arc::new(Client::new());
     let mut futs = FuturesUnordered::new();
     let mut count = 1;
@@ -160,7 +160,7 @@ async fn chunk_scrape_forks() {
         futs.push(rep.get_zip(client.clone(), url.clone(), count));
         count += 1;
         chunk_count += 1;
-        if urls.peek().is_none() || chunk_count >= 50  {
+        if urls.peek().is_none() || chunk_count >= 50 || chunk_count >= amount {
             while let Some(val) = futs.next().await {
                 if let Some(val) = val { zips.push(val)}
             }
