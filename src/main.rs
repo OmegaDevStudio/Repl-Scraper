@@ -166,7 +166,7 @@ async fn chunk_scrape_forks() {
             }
             chunk_count = 0
         }
-        if count >= amount {
+        if count > amount {
             break;
         }
 
