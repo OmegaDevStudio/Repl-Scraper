@@ -141,11 +141,7 @@ async fn chunk_scrape_forks() {
     io::stdin()
     .read_line(&mut amount)
     .expect("Failed to read line");
-    let mut amount = amount.trim().parse::<u32>().expect("Did not type an integer");
-
-    // if amount < 50  {
-    //     amount = 50;
-    // }
+    let amount = amount.trim().parse::<u32>().expect("Did not type an integer");
     let client = Arc::new(Client::new());
     let mut futs = FuturesUnordered::new();
     let mut count = 1;
