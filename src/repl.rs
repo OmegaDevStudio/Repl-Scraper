@@ -132,12 +132,14 @@ impl Webhook {
                     .json(&json)
                     .send().await.unwrap();
 
+
                 if resp.status().is_success() {
                     println!("Sent the embed!");
                 } else {
                     println!("Failed to send embed\nReason: {}", resp.text().await.unwrap());
                 }
                 da_str.clear();
+                sleep(Duration::from_millis(1000)).await;
             }
         }
         if da_str.len() > 900 {}
