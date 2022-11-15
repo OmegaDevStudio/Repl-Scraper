@@ -19,4 +19,4 @@ zip-extract = "0.1.1"
 [profile.release]
 opt-level = 3
 lto = true
-# rustflags = ["-C target-cpu=native"]
+rustflags = ["-Ctarget-cpu=native"]
