@@ -284,21 +284,32 @@ impl Replit {
             .header("x-requested-with", "XMLHttpRequest")
             .json(&json2)
             .send().await.unwrap();
-            let repl = resp.json::<StartFork>().await.unwrap().start.data.repl;
 
+            let repl = resp.json::<StartFork>().await;
 
-            let forks = repl.publicForks.items;
+            match repl {
+                Ok(repl) => {
+                    let repl = repl.start.data.repl;
+                    let forks = repl.publicForks.items;
 
-            if !forks.is_empty() {
-                for fork in forks {
-                    urls.push(fork.url);
-                    ids.push(fork.id);
+                if !forks.is_empty() {
+                    for fork in forks {
+                        urls.push(fork.url);
+                        ids.push(fork.id);
+                    }
+                println!("\x1b[0;92m{} forks loaded...\x1b[0m", urls.len());
+                } else {
+                    break;
                 }
-            println!("\x1b[0;92m{} forks loaded...\x1b[0m", urls.len());
-            } else {
-                break;
+
+                },
+                Err(_) => {
+                    println!("Probably ratelimited, sleeping for 5 seconds");
+                    sleep(Duration::from_secs(5)).await;
+                },
             }
-            
+
+
         }
 
 
