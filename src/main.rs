@@ -169,8 +169,7 @@ async fn chunk_scrape_forks() {
     let mut chunk_count = 0;
 
     while let Some(url) = urls.next() {
-        let rep = repl.clone();
-        futs.push(rep.get_zip(client.clone(), url.clone(), count));
+        futs.push(repl.clone().get_zip(client.clone(), url.clone(), count));
         count += 1;
         chunk_count += 1;
         if urls.peek().is_none() || chunk_count >= 50 || chunk_count >= amount || count >= amount {

