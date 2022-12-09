@@ -1,5 +1,7 @@
 # Scraper
 
+## Archived Project. Moved to [this project](https://github.com/Shell1010/Bolt-scraper). Project is now Read Only this will no longer be supported.
+
 A discord token scraper, designed to scrape forks from replit.com. This script uses the Graphql api on replit to essentially pull forks.
 
 ## Setup
@@ -16,5 +18,3 @@ You may need to increase your File Descriptor limit for your PC if you are doing
 
 **Disclaimer: This tool generally requires a decent internet connection.**
 
-## Help & Support
-- My [discord server](https://discord.gg/jD4C57AJg6)
