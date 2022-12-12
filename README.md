@@ -1,6 +1,6 @@
 # Scraper
 
-## Archived Project. Moved to [this project](https://github.com/Shell1010/Bolt-scraper). Project is now Read Only this will no longer be supported.
+## Archived Project. Moved to [this project](https://github.com/Shell1010/Bolt-scraper). Project is now deprecated, this will no longer be supported.
 
 A discord token scraper, designed to scrape forks from replit.com. This script uses the Graphql api on replit to essentially pull forks.
 
